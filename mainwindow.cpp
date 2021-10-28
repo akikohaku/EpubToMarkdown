@@ -20,6 +20,24 @@ MainWindow::MainWindow(QWidget *parent)
     std::locale::global(std::locale(""));
     QString str = "中文";
     std::cout << str.toLocal8Bit().data();
+    QFile file(QCoreApplication::applicationDirPath()+"/OSS.config");
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        QTextStream stream(&file);
+        QList<QByteArray> temp=QList<QByteArray>();
+        while (!file.atEnd()){
+            temp.append(file.readLine());
+            qDebug() << str;
+        }
+        ui->keyID->setText(temp.at(0).split('\n').at(0));
+        ui->lineEdit_4->setText(temp.at(1).split('\n').at(0));
+        ui->lineEdit_5->setText(temp.at(2).split('\n').at(0));
+        ui->lineEdit_6->setText(temp.at(3).split('\n').at(0));
+        ui->lineEdit_7->setText(temp.at(4).split('\n').at(0));
+        file.close();
+    }else{
+        ui->textEdit->append("[System]:读取OSS文件失败,请先配置OSS");
+    }
 }
 
 MainWindow::~MainWindow()
@@ -198,7 +216,7 @@ void MainWindow::on_analize_clicked()
             outfile.open((golbal.SaveFile+QString::number(golbal.count)+" - "+filename.split("/").last().split(".").first()+".md").toLocal8Bit(),std::ios::out);
             ui->textEdit->append("[System]:创建文件 "+golbal.SaveFile+QString::number(golbal.count)+" - "+filename.split("/").last().split(".").first()+".md");
             oss uploader;
-            QString out = uploader.upload(QCoreApplication::applicationDirPath()+"/cache/OEBPS/"+filename,!ui->disableupload->isChecked());
+            QString out = uploader.upload(QCoreApplication::applicationDirPath()+"/cache/OEBPS/"+filename,!ui->disableupload->isChecked(),ui->keyID->text(),ui->lineEdit_4->text(),ui->lineEdit_5->text(),ui->lineEdit_6->text(),ui->lineEdit_7->text());
             outfile<<"![]("<<out.toStdString()<<")"<<std::endl;
             golbal.count++;
         }else{
@@ -320,7 +338,7 @@ void MainWindow::on_analize_clicked()
                             QString picdir=QCoreApplication::applicationDirPath()+"/cache/OEBPS/Images"+strSRC.replace(QRegExp("../Images"),"");
                             //ui->textEdit->append(picdir);
                             oss uploader;
-                            QString webpath=uploader.upload(picdir,!ui->disableupload->isChecked());
+                            QString webpath=uploader.upload(picdir,!ui->disableupload->isChecked(),ui->keyID->text(),ui->lineEdit_4->text(),ui->lineEdit_5->text(),ui->lineEdit_6->text(),ui->lineEdit_7->text());
                             outfile << "![]("<<webpath.toStdString()<<")" <<std::endl;
                          }
                      }
@@ -338,7 +356,7 @@ void MainWindow::on_analize_clicked()
                             QString picdir=QCoreApplication::applicationDirPath()+"/cache/OEBPS/Images"+strSRC.replace(QRegExp("../Images"),"");
                             //ui->textEdit->append(picdir);
                             oss uploader;
-                            QString webpath=uploader.upload(picdir,!ui->disableupload->isChecked());
+                            QString webpath=uploader.upload(picdir,!ui->disableupload->isChecked(),ui->keyID->text(),ui->lineEdit_4->text(),ui->lineEdit_5->text(),ui->lineEdit_6->text(),ui->lineEdit_7->text());
                             outfile << "![]("<<webpath.toStdString()<<")" <<std::endl;
                          }
                      }
@@ -431,4 +449,17 @@ void MainWindow::on_H5_clicked()
     ui->h3->setText("#");
     ui->h4->setText("#");
     ui->h5->setText("#");
+}
+
+void MainWindow::on_pushButton_2_clicked()
+{
+    //保存OSS参数
+    std::fstream outfile;
+    outfile.open((QCoreApplication::applicationDirPath()+"/OSS.config").toLocal8Bit(),std::ios::out);
+    outfile <<ui->keyID->text().toStdString()<<std::endl;
+    outfile <<ui->lineEdit_4->text().toStdString()<<std::endl;
+    outfile <<ui->lineEdit_5->text().toStdString()<<std::endl;
+    outfile <<ui->lineEdit_6->text().toStdString()<<std::endl;
+    outfile <<ui->lineEdit_7->text().toStdString()<<std::endl;
+    ui->textEdit->append("[System]:已保存OSS参数");
 }

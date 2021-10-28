@@ -10,14 +10,14 @@ using namespace AlibabaCloud::OSS;
 
 class oss{
 public:
-    QString upload(QString filename,bool isOn){
-        std::string AccessKeyId = "";
-            std::string AccessKeySecret = "";
-            std::string Endpoint = "oss-cn-shanghai.aliyuncs.com";
+    QString upload(QString filename,bool isOn,QString keyid,QString secret,QString endpoint,QString bucket,QString path){
+        std::string AccessKeyId = keyid.toStdString();
+            std::string AccessKeySecret = secret.toStdString();
+            std::string Endpoint = endpoint.toStdString();
             /* 填写Bucket名称，例如examplebucket */
-            std::string BucketName = "";
+            std::string BucketName = bucket.toStdString();
             /* 填写文件完整路径，例如exampledir/exampleobject.txt。文件完整路径中不能包含Bucket名称 */
-            std::string ObjectName = "web/pic/"+getFileMd5(filename).toStdString()+"."+filename.split(".").last().toStdString();
+            std::string ObjectName = path.toStdString()+getFileMd5(filename).toStdString()+"."+filename.split(".").last().toStdString();
 
             if(isOn){
             /* 初始化网络等资源 */
@@ -42,7 +42,7 @@ public:
                 /* 释放网络等资源 */
                 ShutdownSdk();
             }
-            QString webpath=""+getFileMd5(filename)+"."+filename.split(".").last();
+            QString webpath="https://"+bucket+"."+endpoint+"/"+path+getFileMd5(filename)+"."+filename.split(".").last();
             return webpath;
     }
 private:
